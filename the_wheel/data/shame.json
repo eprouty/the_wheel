@@ -1,0 +1,42 @@
+{
+    "wheel_of_shame": {
+        "Essay!": "Write a 300+ word essay of a topic chosen by this weeks best.",
+        "Shotgun!": "Shotgun a beer and send the video to the league.",
+        "Arts and crafts!": "Create and share an arts and crafts project.",
+        "Charity!": "Make a $5 donation to the charity of the winner's choice.",
+        "Stranger Danger!": "Get a total stranger to do power rankings for our league.",
+        "Compliments!": "Compliment everyone in the league.",
+        "Africa!": "Cover Africa by Toto",
+        "Iced!": "Chug a 40 ounce Smirnoff Ice.",
+        "Comedy!": "2 minute comedy routine video.",
+        "Angels!": "Spend at least a minute making a \"snow\" angel",
+        "Emails!": "E-mail 5 people about your shameful loss and CC the whole league.",
+        "Vow of Silence!": "You are dropped from the group chat for a week.",
+        "Naming Rights!": "Winner chooses ALL team names (EVERY FANTASY LEAGUE) for the week.",
+        "Shitter Trophy!": {
+            "first_time": "Congratulations! You get to go out and buy the Shitter Tropy!",
+            "all_others": "Pay for postage for the previous owner to ship the Shitter Tropy to you! If you already have it then mail it to yourself at work."
+        },
+        "Cupcakes!": "Make some \"Loser Cupcakes\" and bring them into work.",
+        "Polar Plunge!": {
+            "start_date": "Nov 1",
+            "end_date": "Apr 20",
+            "desc": "Go out and do a polar plunge."
+        },
+        "Slurpee!": "Chug a slurpee",
+        "Delivery!": "Order delivery pizza for the winner, their choice of toppings.",
+        "Pushups!": "MAX out on pushups",
+        "Lemonade!": "Sell lemonade on the side of the road for an hour or until you get arrested. Record your profits.",
+        "Ice Bucket Challenge!": "Do the ice bucket challenge, but... like shirtless... like",
+        "Lip sync!": "Lip sync a popular music video",
+        "HORRIBLE WHEEL!": "Spin the Horrible Wheel... This is what you get for being so bad at SPORTS!",
+        "Armpit Tag!": "Shave one armpit and live with that for a week."
+    },
+    "horrible_wheel": {
+        "Gallon Challenge!": "Chug a gallon of \"milk\"... doesn't have to be beef milk, but it's gotta be milk, and it's gotta be a gallon",
+        "Shaved!": "Shave your head, buzzing is fine, enjoying explaining that to everyone you loser.",
+        "FREE PASS!": "You lucky fuck... at least you had to suffer a day of not knowing what you'd get.",
+        "Cinnamon Challenge!": "Cinnamon Challenge... you know it... just do it.",
+        "Smirnoff Hands!": "Edward Smirnoff Hands, grab a couple 40s and cry yourself to sleep with them."
+    }
+}
