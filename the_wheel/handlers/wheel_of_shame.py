@@ -41,4 +41,4 @@ class WheelOfShame():
                 pass
 
         # Store the result
-        print(shame_name, shame_info)
+        return("{}: {}".format(shame_name, shame_info))
