@@ -19,14 +19,21 @@ if os.environ.get('MONGODB_URI'): # pragma: no cover
     mongoUri = os.environ['MONGODB_URI']
     mongoClient = pymongo.MongoClient(mongoUri)
     wheel_db = mongoClient.the_wheel
+
+    app.config['MONGODB_SETTINGS'] = {
+        'db': 'the_wheel',
+        'host': mongoUri
+    }
     print("Using production database!")
 else:
     mongoClient = pymongo.MongoClient()
     wheel_db = mongoClient.the_wheel
 
-app.config['MONGODB_SETTINGS'] = {
-    'db': 'the_wheel',
-}
+    app.config['MONGODB_SETTINGS'] = {
+        'db': 'the_wheel',
+    }
+
+
 app.config['SECRET_KEY'] = 'thisisthewheelthatalwaysshames'
 
 db = MongoEngine(app)
