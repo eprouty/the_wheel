@@ -1,5 +1,40 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Hello, SPORTS! Fans!</h1>
+<div class="container">
+    <h1>The Wheel of Shame</h1>
+    <p>Hello {{ name }}</p>
+    {% if can_spin %}
+    <br/>
+    <button type="button" onClick="spinWheel()">Spin the Wheel!</button>
+    <br/>
+    <div id="new_result"></div>
+    {% else %}
+    <p>You have already spun this week... sucks to suck loser.</p>
+    {% endif %}
+    <br/><br/>
+    <h2>This weeks results:</h2>
+    <br/>
+    <div id="all_results">
+      {% for key, value in history.items() %}
+        <b>{{ key }}: </b><p>{{ value }}</p>
+      {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script>
+    function spinWheel() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("new_result").innerHTML = this.responseText;
+          }
+        };
+        xhttp.open("GET", "wheels_will", true);
+        xhttp.send();
+      }
+</script>
 {% endblock %}

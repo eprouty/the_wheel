@@ -3,11 +3,38 @@ import json
 import random
 
 class WheelOfShame():
-    def __init__(self):
+    def __init__(self, db):
+        self.db = db
         with open('the_wheel/data/shame.json') as f:
             self.data = json.load(f)
 
-    def spin_wheel(self):
+    def check_spins(self):
+        output = {}
+        # Get the spins for this week and make sure that user hasn't spun already this week...
+        today = datetime.datetime.now()
+        start = today - datetime.timedelta(days=today.weekday())
+        end = start + datetime.timedelta(days=6)
+
+        this_week = self.db.spins.find({"date": {'$lte': end, '$gte': start}})
+        for shame in this_week:
+            output[shame['loser']] = "{} {}".format(shame['shame'], shame['info'])
+
+        return output
+
+    def spin_wheel(self, username):
+        output = {'new': "",
+                  'old': {}}
+        # Get the spins for this week and make sure that user hasn't spun already this week...
+        today = datetime.datetime.now()
+        start = today - datetime.timedelta(days=today.weekday())
+        end = start + datetime.timedelta(days=6)
+
+        this_week = self.db.spins.find({"date": {'$lte': end, '$gte': start}})
+        for shame in this_week:
+            if username == shame['loser']:
+                # This loser has already spun!
+                return ""
+
         # Enumerate out the options, ~10% of them are power rankings
         shames = list(self.data['wheel_of_shame'])
         total_shames = len(shames) + int(len(shames) * .1) + 1
@@ -41,4 +68,12 @@ class WheelOfShame():
                 pass
 
         # Store the result
+        self.store_spin(shame_name, shame_info, username)
         return("{} {}".format(shame_name, shame_info))
+
+    def store_spin(self, shame_name, shame_info, username):
+        spin_record = {"date": datetime.datetime.now(),
+                       "shame": shame_name,
+                       "info": shame_info,
+                       "loser": username}
+        self.db.spins.insert_one(spin_record)
