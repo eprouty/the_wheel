@@ -60,9 +60,5 @@ def wheels_will():
 def wheel():
     return render_template('wheel_of_shame.html')
 
-@app.route('/wheels_will')
-def wheels_will():
-    return the_wheel.spin_wheel()
-
 if __name__ == "__main__":
     app.run()
