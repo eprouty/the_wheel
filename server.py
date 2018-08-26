@@ -17,8 +17,6 @@ wheel_db = None
 if os.environ.get('MONGODB_URI'): # pragma: no cover
     # Production database
     mongoUri = os.environ['MONGODB_URI']
-    mongoClient = pymongo.MongoClient(mongoUri)
-    wheel_db = mongoClient.the_wheel
 
     app.config['MONGODB_SETTINGS'] = {
         'db': 'the_wheel',
@@ -45,7 +43,7 @@ nav.register_element('top', Navbar(
 ))
 nav.init_app(app)
 
-the_wheel = wheel_of_shame.WheelOfShame(wheel_db)
+the_wheel = wheel_of_shame.WheelOfShame(db)
 login.setup_login(app, db)
 
 @app.route("/")

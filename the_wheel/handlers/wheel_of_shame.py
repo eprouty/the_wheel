@@ -2,6 +2,15 @@ import datetime
 import json
 import random
 
+from mongoengine.queryset.visitor import Q
+
+class Spins(db.Document):
+        meta = {'collection': 'spins'}
+        date = db.DateTimeField()
+        shame = db.StringField()
+        info = db.StringField()
+        loser = db.StringField(max_length=30)
+
 class WheelOfShame():
     def __init__(self, db):
         self.db = db
@@ -15,21 +24,19 @@ class WheelOfShame():
         start = today - datetime.timedelta(days=today.weekday())
         end = start + datetime.timedelta(days=6)
 
-        this_week = self.db.spins.find({"date": {'$lte': end, '$gte': start}})
+        this_week = Spins.objects(Q(date__gte=start) & Q(date__lte=end))
         for shame in this_week:
             output[shame['loser']] = "{} {}".format(shame['shame'], shame['info'])
 
         return output
 
     def spin_wheel(self, username):
-        output = {'new': "",
-                  'old': {}}
         # Get the spins for this week and make sure that user hasn't spun already this week...
         today = datetime.datetime.now()
         start = today - datetime.timedelta(days=today.weekday())
         end = start + datetime.timedelta(days=6)
 
-        this_week = self.db.spins.find({"date": {'$lte': end, '$gte': start}})
+        this_week = Spins.objects(Q(date__gte=start) & Q(date__lte=end))
         for shame in this_week:
             if username == shame['loser']:
                 # This loser has already spun!
@@ -72,8 +79,9 @@ class WheelOfShame():
         return("{} {}".format(shame_name, shame_info))
 
     def store_spin(self, shame_name, shame_info, username):
-        spin_record = {"date": datetime.datetime.now(),
-                       "shame": shame_name,
-                       "info": shame_info,
-                       "loser": username}
-        self.db.spins.insert_one(spin_record)
+        spin = Spins(date=datetime.datetime.now(),
+                     shame=shame_name,
+                     info=shame_info,
+                     loser=username)
+
+        spin.save()

@@ -47,7 +47,6 @@ prompt-toolkit==1.0.15
 ptyprocess==0.6.0
 Pygments==2.2.0
 pylint==2.1.1
-pymongo==3.4.0
 python-dateutil==2.7.3
 pyzmq==17.1.2
 qtconsole==4.4.1
