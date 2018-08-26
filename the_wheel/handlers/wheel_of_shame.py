@@ -3,13 +3,7 @@ import json
 import random
 
 from mongoengine.queryset.visitor import Q
-
-class Spins(db.Document):
-        meta = {'collection': 'spins'}
-        date = db.DateTimeField()
-        shame = db.StringField()
-        info = db.StringField()
-        loser = db.StringField(max_length=30)
+from server import Spins
 
 class WheelOfShame():
     def __init__(self, db):

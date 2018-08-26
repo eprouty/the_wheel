@@ -43,6 +43,13 @@ nav.register_element('top', Navbar(
 ))
 nav.init_app(app)
 
+class Spins(db.Document):
+    meta = {'collection': 'spins'}
+    date = db.DateTimeField()
+    shame = db.StringField()
+    info = db.StringField()
+    loser = db.StringField(max_length=30)
+
 the_wheel = wheel_of_shame.WheelOfShame(db)
 login.setup_login(app, db)
 
