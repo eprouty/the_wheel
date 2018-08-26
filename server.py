@@ -5,7 +5,6 @@ from flask_nav.elements import Navbar, View, Subgroup, Link
 from flask_login import login_required, current_user
 from flask_mongoengine import MongoEngine
 import os
-import pymongo
 
 from the_wheel.handlers import wheel_of_shame, login
 
@@ -24,7 +23,6 @@ if os.environ.get('MONGODB_URI'): # pragma: no cover
     }
     print("Using production database!")
 else:
-    mongoClient = pymongo.MongoClient()
     wheel_db = mongoClient.the_wheel
 
     app.config['MONGODB_SETTINGS'] = {
@@ -42,13 +40,6 @@ nav.register_element('top', Navbar(
     View('The Wheel', '.home'),
 ))
 nav.init_app(app)
-
-class Spins(db.Document):
-    meta = {'collection': 'spins'}
-    date = db.DateTimeField()
-    shame = db.StringField()
-    info = db.StringField()
-    loser = db.StringField(max_length=30)
 
 the_wheel = wheel_of_shame.WheelOfShame(db)
 login.setup_login(app, db)
