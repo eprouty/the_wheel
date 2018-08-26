@@ -17,14 +17,12 @@ wheel_db = None
 if os.environ.get('MONGODB_URI'): # pragma: no cover
     # Production database
     mongoUri = os.environ['MONGODB_URI']
-    mongoClient = pymongo.MongoClient(mongoUri, username='the_wheel', password=os.environ['MONGODB_PASS'])
+    mongoClient = pymongo.MongoClient(mongoUri)
     wheel_db = mongoClient.the_wheel
 
     app.config['MONGODB_SETTINGS'] = {
         'db': 'the_wheel',
-        'host': mongoUri,
-        'username': 'the_wheel',
-        'password': os.environ['MONGODB_PASS']
+        'host': mongoUri
     }
     print("Using production database!")
 else:
