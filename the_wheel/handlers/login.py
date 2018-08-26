@@ -22,7 +22,7 @@ def setup_login(app, db):
 
     class RegForm(FlaskForm):
         name = StringField('name',  validators=[InputRequired(), Length(max=30)])
-        password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=20)])
+        password = PasswordField('password', validators=[InputRequired(), Length(min=3, max=20)])
 
     @app.route('/register', methods=['GET', 'POST'])
     def register():
