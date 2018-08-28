@@ -1,8 +1,9 @@
 import os
-from flask import Flask, render_template, session, redirect, url_for
+from datetime import datetime
+from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_nav import Nav
-from flask_nav.elements import Navbar, View, Subgroup, Link
+from flask_nav.elements import Navbar, View
 from flask_login import login_required, current_user
 from flask_mongoengine import MongoEngine
 
@@ -20,7 +21,7 @@ if os.environ.get('MONGODB_URI'): # pragma: no cover
         'db': 'the_wheel',
         'host': mongoUri
     }
-    print("Using production database!")
+    print("Using {} database!".format(os.environ.get('STAGE')))
 else:
     app.config['MONGODB_SETTINGS'] = {
         'db': 'the_wheel',
@@ -38,18 +39,20 @@ nav.register_element('top', Navbar(
 ))
 nav.init_app(app)
 
-the_wheel = wheel_of_shame.WheelOfShame(db)
-login.setup_login(app, db)
+the_wheel = wheel_of_shame.WheelOfShame()
+login.setup_login(app)
 yahoo.setup_yahoo(app)
 
 @app.route("/")
 @login_required
 def home():
-    if 'oauth_token' not in session:
+    # if 'oauth_token' not in session:  # Need to validate not just look at it...
+    if not current_user.oauth_token:
         return redirect(url_for('yahoo_auth'))
+    elif datetime.now() > current_user.token_expiry:
+        return redirect(url_for('refresh_token'))
 
     history = the_wheel.check_spins()
-    print(history)
     can_spin = True
     if current_user.name in history:
         can_spin = False

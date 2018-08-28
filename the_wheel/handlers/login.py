@@ -4,16 +4,21 @@ from wtforms import StringField, PasswordField
 from wtforms.validators import Length, InputRequired
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from mongoengine import Document, StringField, DateTimeField
 
-def setup_login(app, db):
+class User(UserMixin, Document):
+    meta = {'collection': 'users'}
+    name = StringField(max_length=30)
+    password = StringField()
+    oauth_token = StringField()
+    refresh_token = StringField()
+    token_expiry = DateTimeField()
+
+def setup_login(app):
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'login'
 
-    class User(UserMixin, db.Document):
-        meta = {'collection': 'users'}
-        name = db.StringField(max_length=30)
-        password = db.StringField()
 
     @login_manager.user_loader
     def load_user(user_id):

@@ -3,7 +3,9 @@ import json
 import random
 
 from mongoengine.queryset.visitor import Q
-from mongoengine import Document, DateTimeField, StringField
+from mongoengine import Document, DateTimeField, StringField, IntField
+
+from the_wheel.handlers import yahoo
 
 class Spins(Document):
     meta = {'collection': 'spins'}
@@ -12,9 +14,22 @@ class Spins(Document):
     info = StringField()
     loser = StringField(max_length=30)
 
+class Scoreboards(Document):
+    meta = {'collection': 'scores'}
+    week = IntField()
+    team0_key = StringField()
+    team1_key = StringField()
+    team0_score = IntField()
+    team1_score = IntField()
+
+class Teams(Document):
+    meta = {'collection': 'teams'}
+    owner = StringField()
+    league = StringField()
+    team_key = StringField()
+
 class WheelOfShame():
-    def __init__(self, db):
-        self.db = db
+    def __init__(self):
         with open('the_wheel/data/shame.json') as f:
             self.data = json.load(f)
 
@@ -56,7 +71,7 @@ class WheelOfShame():
                     pass
                 else:
                     # Pick a new one
-                    return self.spin_wheel()
+                    return self.spin_wheel(username)
 
             if 'first_time' in shame_info:
                 shame_info = shame_info['first_time']
