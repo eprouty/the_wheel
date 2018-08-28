@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request, url_for
+import os
+from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 from flask_nav import Nav
 from flask_nav.elements import Navbar, View, Subgroup, Link
 from flask_login import login_required, current_user
 from flask_mongoengine import MongoEngine
-import os
 
 from the_wheel.handlers import wheel_of_shame, login
 
@@ -57,7 +57,9 @@ def home():
 @app.route('/wheels_will')
 @login_required
 def wheels_will():
-    return the_wheel.spin_wheel(current_user.name)
+    history = the_wheel.check_spins()
+    if current_user.name not in history:
+        return the_wheel.spin_wheel(current_user.name)
 
 if __name__ == "__main__":
     app.run()

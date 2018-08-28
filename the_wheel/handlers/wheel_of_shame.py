@@ -32,17 +32,6 @@ class WheelOfShame():
         return output
 
     def spin_wheel(self, username):
-        # Get the spins for this week and make sure that user hasn't spun already this week...
-        today = datetime.datetime.now()
-        start = today - datetime.timedelta(days=today.weekday())
-        end = start + datetime.timedelta(days=6)
-
-        this_week = Spins.objects(Q(date__gte=start) & Q(date__lte=end))
-        for shame in this_week:
-            if username == shame['loser']:
-                # This loser has already spun!
-                return ""
-
         # Enumerate out the options, ~10% of them are power rankings
         shames = list(self.data['wheel_of_shame'])
         total_shames = len(shames) + int(len(shames) * .1) + 1

@@ -6,7 +6,7 @@
     <p>Hello {{ name }}</p>
     {% if can_spin %}
     <br/>
-    <button type="button" onClick="spinWheel()">Spin the Wheel!</button>
+    <button id="the_button" type="button" onClick="spinWheel()">Spin the Wheel!</button>
     <br/>
     <div id="new_result"></div>
     {% else %}
@@ -17,7 +17,7 @@
     <br/>
     <div id="all_results">
       {% for key, value in history.items() %}
-        <b>{{ key }}: </b><p>{{ value }}</p>
+        <b>{{ key }}: </b><p>    {{ value }}</p>
       {% endfor %}
     </div>
 </div>
@@ -31,6 +31,7 @@
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
             document.getElementById("new_result").innerHTML = this.responseText;
+            document.getElementById("the_button").disabled = true;
           }
         };
         xhttp.open("GET", "wheels_will", true);
