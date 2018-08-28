@@ -5,7 +5,6 @@ from wtforms.validators import Length, InputRequired
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
-
 def setup_login(app, db):
     login_manager = LoginManager()
     login_manager.init_app(app)
@@ -48,7 +47,7 @@ def setup_login(app, db):
                 if check_user:
                     if check_password_hash(check_user['password'], form.password.data):
                         login_user(check_user)
-                        return redirect(url_for('home'))
+                        return redirect(url_for('yahoo_auth'))
         return render_template('login.html', form=form)
 
     @app.route('/dashboard')

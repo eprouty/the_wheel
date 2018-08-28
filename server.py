@@ -1,16 +1,15 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, session, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_nav import Nav
 from flask_nav.elements import Navbar, View, Subgroup, Link
 from flask_login import login_required, current_user
 from flask_mongoengine import MongoEngine
 
-from the_wheel.handlers import wheel_of_shame, login
+from the_wheel.handlers import wheel_of_shame, login, yahoo
 
 app = Flask(__name__)
 
-mongoClient = None
 mongoUri = None
 wheel_db = None
 if os.environ.get('MONGODB_URI'): # pragma: no cover
@@ -23,8 +22,6 @@ if os.environ.get('MONGODB_URI'): # pragma: no cover
     }
     print("Using production database!")
 else:
-    wheel_db = mongoClient.the_wheel
-
     app.config['MONGODB_SETTINGS'] = {
         'db': 'the_wheel',
     }
@@ -43,10 +40,14 @@ nav.init_app(app)
 
 the_wheel = wheel_of_shame.WheelOfShame(db)
 login.setup_login(app, db)
+yahoo.setup_yahoo(app)
 
 @app.route("/")
 @login_required
 def home():
+    if 'oauth_token' not in session:
+        return redirect(url_for('yahoo_auth'))
+
     history = the_wheel.check_spins()
     print(history)
     can_spin = True
