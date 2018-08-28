@@ -8,12 +8,12 @@ with open('auth.json') as cred_file:
 
 def setup_yahoo(app):
     def get_session(state=None, token=None):
-        return OAuth2Session(credentials['consumer_key'], state=state, token=token)
+        return OAuth2Session(credentials['consumer_key'], response_type="id_token", redirect_uri="https://the-wheel-staging.herokuapp.com/callback", state=state, token=token)
 
     @app.route('/yahoo_auth')
     def yahoo_auth():
         yahoo = get_session()
-        authorization_url, state = yahoo.authorization_url("https://api.login.yahoo.com/oauth/v2/request_auth", redirect_url="https://the-wheel-staging.herokuapp.com/callback")
+        authorization_url, state = yahoo.authorization_url("https://api.login.yahoo.com/oauth/v2/request_auth")
 
         # State is used to prevent CSRF, keep this for later.
         session['oauth_state'] = state
