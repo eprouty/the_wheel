@@ -3,9 +3,12 @@ import json
 import random
 
 from mongoengine.queryset.visitor import Q
-from mongoengine import Document, DateTimeField, StringField, IntField
+from mongoengine import Document, DateTimeField, StringField, DictField
 
 from the_wheel.handlers import yahoo
+
+league_keys = {'baseball': 'mlb.l.23144',
+               'football': 'nfl.l.116671'}
 
 class Spins(Document):
     meta = {'collection': 'spins'}
@@ -14,24 +17,22 @@ class Spins(Document):
     info = StringField()
     loser = StringField(max_length=30)
 
-class Scoreboards(Document):
-    meta = {'collection': 'scores'}
-    week = IntField()
-    team0_key = StringField()
-    team1_key = StringField()
-    team0_score = IntField()
-    team1_score = IntField()
-
-class Teams(Document):
-    meta = {'collection': 'teams'}
-    owner = StringField()
-    league = StringField()
-    team_key = StringField()
+class Losers(Document):
+    meta = {'collection': 'losers'}
+    week_end = DateTimeField()
+    loser = StringField()
+    scores = DictField()
 
 class WheelOfShame():
     def __init__(self):
         with open('the_wheel/data/shame.json') as f:
             self.data = json.load(f)
+
+    def chopping_block(self):
+        today = datetime.datetime.now()
+        weeks_loser = Losers.objects(Q(week_end__gte=today)).first()
+        return {'next_victim': weeks_loser.loser,
+                'the_block': weeks_loser.scores}
 
     def check_spins(self):
         output = {}
@@ -45,6 +46,42 @@ class WheelOfShame():
             output[shame['loser']] = "{} {}".format(shame['shame'], shame['info'])
 
         return output
+
+    def update_losers(self, user_override=None):
+        # Get the scoreboards for each sport and return a list of scores for each matchup within it
+        football, week_start, week_end = yahoo.get_scoreboard(league_keys['football'], user_override)
+
+        week_start = datetime.datetime.strptime(week_start, "%Y-%m-%d")
+        week_end = datetime.datetime.strptime(week_end, "%Y-%m-%d")
+
+        loser, scores = self.calculate_loser(football)
+        weeks_loser = Losers.objects(week_end=week_end).first()
+        if not weeks_loser:
+            # We've got a new week! Create the new object and go finalize last weeks
+            Losers(week_end=week_end, loser=loser, scores=scores).save()
+        else:
+            weeks_loser.loser = loser
+            weeks_loser.scores = scores
+            weeks_loser.save()
+
+        return "This weeks loser is {} with an adjusted score of {}. Here are all the scores {}".format(loser, scores[loser], scores)
+
+    def calculate_loser(self, football):
+        data = {}
+        for match in football:
+            data.setdefault(match['team0_name'], 0)
+            data[match['team0_name']] += match['team0_score'] - match['team1_score']
+            data.setdefault(match['team1_name'], 0)
+            data[match['team1_name']] += match['team1_score'] - match['team0_score']
+
+        loser = False
+        for key in data:
+            if not loser:
+                loser = (key, data[key])
+            elif data[key] < loser[1]:
+                loser = (key, data[key])
+
+        return (loser[0], data)
 
     def spin_wheel(self, username):
         # Enumerate out the options, ~10% of them are power rankings

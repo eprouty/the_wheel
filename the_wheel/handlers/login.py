@@ -1,18 +1,19 @@
+import mongoengine as me
+
 from flask import Flask, render_template, request, redirect, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import Length, InputRequired
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from mongoengine import Document, StringField, DateTimeField
 
-class User(UserMixin, Document):
+class User(UserMixin, me.Document):
     meta = {'collection': 'users'}
-    name = StringField(max_length=30)
-    password = StringField()
-    oauth_token = StringField()
-    refresh_token = StringField()
-    token_expiry = DateTimeField()
+    name = me.StringField(max_length=30)
+    password = me.StringField()
+    oauth_token = me.StringField()
+    refresh_token = me.StringField()
+    token_expiry = me.DateTimeField()
 
 def setup_login(app):
     login_manager = LoginManager()
@@ -25,7 +26,7 @@ def setup_login(app):
         return User.objects(pk=user_id).first()
 
     class RegForm(FlaskForm):
-        name = StringField('name',  validators=[InputRequired(), Length(max=30)])
+        name = StringField('name', validators=[InputRequired(), Length(max=30)])
         password = PasswordField('password', validators=[InputRequired(), Length(min=3, max=20)])
 
     @app.route('/register', methods=['GET', 'POST'])
@@ -36,10 +37,11 @@ def setup_login(app):
                 existing_user = User.objects(name=form.name.data).first()
                 if existing_user is None:
                     hashpass = generate_password_hash(form.password.data, method='sha256')
-                    hey = User(form.name.data,hashpass).save()
+                    hey = User(form.name.data, hashpass).save()
                     login_user(hey)
                     return redirect(url_for('home'))
         return render_template('register.html', form=form)
+
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():

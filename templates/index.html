@@ -2,23 +2,46 @@
 
 {% block content %}
 <div class="container">
-    <h1>The Wheel of Shame</h1>
-    <p>Hello {{ name }}</p>
-    {% if can_spin %}
-    <br/>
-    <button id="the_button" type="button" onClick="spinWheel()">Spin the Wheel!</button>
-    <br/>
-    <div id="new_result"></div>
-    {% else %}
-    <p>You have already spun this week... sucks to suck loser.</p>
-    {% endif %}
-    <br/><br/>
-    <h2>This weeks results:</h2>
-    <br/>
-    <div id="all_results">
-      {% for key, value in history.items() %}
-        <b>{{ key }}: </b><p>{{ value }}</p>
-      {% endfor %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>The Wheel of Shame</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Hello {{ name }}</h3>
+            {% if can_spin %}
+            <br/>
+            <button id="the_button" type="button" onClick="spinWheel()">Spin the Wheel!</button>
+            <br/>
+            <div id="new_result"></div>
+            {% else %}
+            <p>You have already spun this week... sucks to suck loser.</p>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <h2>The Chopping Block</h2>
+            <div class="row">
+                <div class="col-sm-6">
+                        <h3>On the Block: </h3> <b>{{ chopping_block['next_victim'] }}</b>
+                </div>
+                <div class="col-sm-6">
+                    <h3>Scores:</h3>
+                    {% for key, value in chopping_block['the_block'].items() %}
+                        <b>{{ key }}: </b><p>{{ value }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h2>This weeks results:</h2>
+            <br/>
+            {% for key, value in history.items() %}
+                <b>{{ key }}: </b><p>{{ value }}</p>
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -36,6 +59,6 @@
         };
         xhttp.open("GET", "wheels_will", true);
         xhttp.send();
-      }
+    }
 </script>
 {% endblock %}

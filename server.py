@@ -2,8 +2,6 @@ import os
 from datetime import datetime
 from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
-from flask_nav import Nav
-from flask_nav.elements import Navbar, View
 from flask_login import login_required, current_user
 from flask_mongoengine import MongoEngine
 
@@ -33,12 +31,6 @@ app.config['SECRET_KEY'] = 'thisisthewheelthatalwaysshames'
 db = MongoEngine(app)
 Bootstrap(app)
 
-nav = Nav()
-nav.register_element('top', Navbar(
-    View('The Wheel', '.home'),
-))
-nav.init_app(app)
-
 the_wheel = wheel_of_shame.WheelOfShame()
 login.setup_login(app)
 yahoo.setup_yahoo(app)
@@ -56,7 +48,9 @@ def home():
     can_spin = True
     if current_user.name in history:
         can_spin = False
-    return render_template("index.html", history=history, name=current_user.name, can_spin=can_spin)
+
+    chopping_block = the_wheel.chopping_block()
+    return render_template("index.html", history=history, name=current_user.name, can_spin=can_spin, chopping_block=chopping_block)
 
 @app.route('/wheels_will')
 @login_required
@@ -64,6 +58,13 @@ def wheels_will():
     history = the_wheel.check_spins()
     if current_user.name not in history:
         return the_wheel.spin_wheel(current_user.name)
+
+@app.route('/update')
+def update():
+    system_user = login.User.objects(name='system').first()
+    if datetime.now() > system_user.token_expiry:
+        return redirect(url_for('refresh_system_token'))
+    return the_wheel.update_losers(user_override=system_user)
 
 if __name__ == "__main__":
     app.run()
