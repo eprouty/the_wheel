@@ -50,6 +50,7 @@ def home():
         can_spin = False
 
     chopping_block = the_wheel.chopping_block()
+    chopping_block['the_block'] = sorted(chopping_block['the_block'].items(), key=lambda x: x[1])
     return render_template("index.html", history=history, name=current_user.name, can_spin=can_spin, chopping_block=chopping_block)
 
 @app.route('/wheels_will')
