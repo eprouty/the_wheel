@@ -39,14 +39,18 @@ def get_scoreboard(league, user_override):
             week_start = match['week_start']
             team0_name = match['0']['teams']['0']['team'][0][19]['managers'][0]['manager']['nickname']
             team0_score = float(match['0']['teams']['0']['team'][1]['team_points']['total'])
+            team0_projected = float(match['0']['teams']['0']['team'][1]['team_projected_points']['total'])
             team1_name = match['0']['teams']['1']['team'][0][19]['managers'][0]['manager']['nickname']
             team1_score = float(match['0']['teams']['1']['team'][1]['team_points']['total'])
+            team1_projected = float(match['0']['teams']['1']['team'][1]['team_projected_points']['total'])
             output.append({'week_end': week_end,
                            'week_start': week_start,
                            'team0_name': team0_name,
                            'team1_name': team1_name,
                            'team0_score': team0_score,
-                           'team1_score': team1_score})
+                           'team1_score': team1_score,
+                           'team0_projected': team0_projected,
+                           'team1_projected': team1_projected})
 
     return (output, output[0]['week_start'], output[0]['week_end'])
 

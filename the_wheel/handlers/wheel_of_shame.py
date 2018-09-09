@@ -71,15 +71,20 @@ class WheelOfShame():
         for match in football:
             data.setdefault(match['team0_name'], 0)
             data[match['team0_name']] += round(match['team0_score'] - match['team1_score'], 2)
+            data.setdefault(match['team0_name'] + '_projected', 0)
+            data[match['team0_name'] + '_projected'] += round(match['team0_projected'] - match['team1_projected'], 2)
             data.setdefault(match['team1_name'], 0)
             data[match['team1_name']] += round(match['team1_score'] - match['team0_score'], 2)
+            data.setdefault(match['team1_name'] + '_projected', 0)
+            data[match['team1_name'] + '_projected'] += round(match['team1_projected'] - match['team0_projected'], 2)
 
         loser = False
         for key in data:
-            if not loser:
-                loser = (key, data[key])
-            elif data[key] < loser[1]:
-                loser = (key, data[key])
+            if 'projected' not in key:
+                if not loser:
+                    loser = (key, data[key])
+                elif data[key] < loser[1]:
+                    loser = (key, data[key])
 
         return (loser[0], data)
 
