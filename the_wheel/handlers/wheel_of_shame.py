@@ -70,9 +70,9 @@ class WheelOfShame():
         data = {}
         for match in football:
             data.setdefault(match['team0_name'], 0)
-            data[match['team0_name']] += match['team0_score'] - match['team1_score']
+            data[match['team0_name']] += round(match['team0_score'] - match['team1_score'], 2)
             data.setdefault(match['team1_name'], 0)
-            data[match['team1_name']] += match['team1_score'] - match['team0_score']
+            data[match['team1_name']] += round(match['team1_score'] - match['team0_score'], 2)
 
         loser = False
         for key in data:
