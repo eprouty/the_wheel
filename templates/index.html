@@ -5,14 +5,19 @@
     <div class="page-header text-center">
         <h1>The Wheel of Shame</h1>
     </div>
-    {% if can_spin %}
+
     <div class="jumbotron text-center">
+        {% if can_spin %}
         <h2>Hello {{ name }}</h2>
         <button id="the_button" type="button" onClick="spinWheel()" class="btn btn-danger">Spin the Wheel!</button>
         <br/>
         <div id="new_result"></div>
+        {% endif %}
+        {% if chopping_block['the_loser'] %}
+        <h2>Punishment</h2>
+        <h3>{{ chopping_block['the_loser'] }}</h3>
+        {% endif %}
     </div>
-    {% endif %}
     <div class="row">
         <div class="panel panel-info">
             <div class="panel-heading">

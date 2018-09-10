@@ -46,15 +46,21 @@ def setup_login(app):
     @app.route('/login', methods=['GET', 'POST'])
     def login():
         if current_user.is_authenticated:
-            return redirect(url_for('/'))
+            return redirect(url_for('home'))
+
         form = RegForm()
         if request.method == 'POST':
             if form.validate():
                 check_user = User.objects(name=form.name.data).first()
                 if check_user:
                     if check_password_hash(check_user['password'], form.password.data):
-                        login_user(check_user)
-                        return redirect(url_for('yahoo_auth'))
+                        login_user(check_user, remember=True)
+
+                        # if 'oauth_token' not in session:  # Need to validate not just look at it...
+                        if not check_user['oauth_token']:
+                            return redirect(url_for('yahoo_auth'))
+                        else:
+                            return redirect(url_for('home'))
         return render_template('login.html', form=form)
 
     @app.route('/dashboard')
