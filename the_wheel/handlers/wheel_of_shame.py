@@ -35,7 +35,7 @@ class WheelOfShame():
     def chopping_block(self):
         today = datetime.datetime.now().date()
         weeks_loser = Losers.objects(Q(week_end__gte=today)).first()
-        last_loser = Losers.objects(Q(week_end__lt=today)).first()
+        last_loser = Losers.objects(Q(week_end__lt=today)).order_by('-week_end').first()
 
         ret = {'the_loser': ''}
         if weeks_loser:
@@ -61,8 +61,9 @@ class WheelOfShame():
     def check_spins(self):
         output = {}
         # Get the spins for this week and make sure that user hasn't spun already this week...
-        today = datetime.datetime.now()
-        start = today - datetime.timedelta(days=today.weekday())
+        today = datetime.datetime.now().date()
+        adj = today.weekday() if today.weekday() != 0 else 6
+        start = today - datetime.timedelta(days=adj)
         end = start + datetime.timedelta(days=6)
 
         this_week = Spins.objects(Q(date__gte=start) & Q(date__lte=end))
