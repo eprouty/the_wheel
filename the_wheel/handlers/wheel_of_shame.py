@@ -33,17 +33,25 @@ class WheelOfShame():
             self.data = json.load(f)
 
     def chopping_block(self):
+        # TODO: This needs to be updated to actually support showing hockey and basketball results
+        # They are going to be stored in the database now... but haven't done any work to actually
+        # show them... need to get there eventually
         today = datetime.datetime.now().date()
-        weeks_loser = Losers.objects(Q(week_end__gte=today)).first()
-        last_loser = Losers.objects(Q(week_end__lt=today)).order_by('-week_end').first()
+        f_loser = Losers.objects(week_end__gte=today, sport='football').first()
+        h_loser = Losers.objects(week_end__gte=today, sport='hockey').first()
+        o_loser = Losers.objects(week_end__gte=today, sport='overall').first()
+        last_loser = Losers.objects(week_end__lt=today, sport='overall').order_by('-week_end').first()
 
-        ret = {'the_loser': ''}
-        if weeks_loser:
-            ret['next_victim'] = weeks_loser.loser
-            ret['the_block'] = weeks_loser.scores
-        else:
-            ret['next_victim'] = ''
-            ret['the_block'] = {}
+        ret = {'the_loser': '',
+               'the_block': {},
+               'next_victim': ''}
+        if o_loser:
+            ret['next_victim'] = o_loser.loser if o_loser.scores[o_loser.loser] != 0 else ''
+            for key in o_loser.scores:
+                ret['the_block'][key] = {'football': f_loser.scores[key],
+                                         'hockey': h_loser.scores[key],
+                                         'overall': o_loser.scores[key]}
+            print(ret['the_block'])
 
         if last_loser and last_loser.punishment == '':
             start = last_loser.week_end - datetime.timedelta(days=6)
@@ -54,7 +62,6 @@ class WheelOfShame():
             ret['the_loser'] = "{}: {}".format(last_loser.loser, last_loser.punishment)
         elif last_loser:
             ret['the_loser'] = "{}: {}".format(last_loser.loser, last_loser.punishment)
-
 
         return ret
 
@@ -74,44 +81,70 @@ class WheelOfShame():
 
     def update_losers(self, user_override=None):
         # Get the scoreboards for each sport and return a list of scores for each matchup within it
-        football, week_start, week_end = yahoo.get_scoreboard(league_keys['football'], user_override)
+        football, f_week_start, f_week_end = yahoo.get_scoreboard(league_keys['football'], user_override)
+        hockey, h_week_start, h_week_end = yahoo.get_scoreboard(league_keys['hockey'], user_override)
 
-        week_start = datetime.datetime.strptime(week_start, "%Y-%m-%d")
-        week_end = datetime.datetime.strptime(week_end, "%Y-%m-%d")
+        dates = {'football': {'week_start': datetime.datetime.strptime(f_week_start, "%Y-%m-%d"),
+                              'week_end': datetime.datetime.strptime(f_week_end, "%Y-%m-%d")},
+                 'hockey': {'week_start': datetime.datetime.strptime(h_week_start, "%Y-%m-%d"),
+                            'week_end': datetime.datetime.strptime(h_week_end, "%Y-%m-%d")}}
 
-        loser, scores = self.calculate_loser(football)
-        weeks_loser = Losers.objects(week_end=week_end).first()
-        if not weeks_loser:
-            # We've got a new week! Create the new object and go finalize last weeks
-            Losers(sport='football', week_end=week_end, loser=loser, scores=scores).save()
+        scores = self.calculate_sports(football, hockey)
+        for key in scores:
+            self.record_loser(dates[key]['week_end'], key, scores[key])
+
+        # Now figure out the overall winner taking into consideration the way that weeks end for different sports.
+        the_week = Losers.objects(Q(week_end__gt=dates['football']['week_start']) & Q(week_end__lte=dates['football']['week_end']))
+        overall = {}
+        for loser in the_week:
+            if loser.sport != 'overall':
+                for key in loser.scores:
+                    overall.setdefault(key, 0)
+                    overall[key] += loser.scores[key]
+
+        overall_loser = min(overall, key=overall.get)
+
+        record = Losers.objects(week_end=dates['football']['week_end'], sport='overall').first()
+        if not record:
+            Losers(sport='overall', week_end=dates['football']['week_end'], loser=overall_loser, scores=overall).save()
         else:
-            weeks_loser.loser = loser
-            weeks_loser.scores = scores
-            weeks_loser.save()
+            record.loser = overall_loser
+            record.scores = overall
+            record.save()
 
-        return str(weeks_loser)
+        return "{} \n {}".format(overall_loser, overall)
 
-    def calculate_loser(self, football):
+    def record_loser(self, week_end, sport, scores):
+        loser = Losers.objects(week_end=week_end, sport=sport).first()
+        if not loser:
+            # We've got a new week! Create the new object and go finalize last weeks
+            Losers(sport=sport, week_end=week_end, loser=min(scores, key=scores.get), scores=scores).save()
+        else:
+            loser.loser = min(scores, key=scores.get)
+            loser.scores = scores
+            loser.save()
+
+    def sum_sport(self, sport):
         data = {}
-        for match in football:
+        for match in sport:
             data.setdefault(match['team0_name'], 0)
             data[match['team0_name']] += round(match['team0_score'] - match['team1_score'], 2)
-            data.setdefault(match['team0_name'] + '_projected', 0)
-            data[match['team0_name'] + '_projected'] += round(match['team0_projected'] - match['team1_projected'], 2)
+            # data.setdefault(match['team0_name'] + '_projected', 0)
+            # data[match['team0_name'] + '_projected'] += round(match['team0_projected'] - match['team1_projected'], 2)
             data.setdefault(match['team1_name'], 0)
             data[match['team1_name']] += round(match['team1_score'] - match['team0_score'], 2)
-            data.setdefault(match['team1_name'] + '_projected', 0)
-            data[match['team1_name'] + '_projected'] += round(match['team1_projected'] - match['team0_projected'], 2)
+            # data.setdefault(match['team1_name'] + '_projected', 0)
+            # data[match['team1_name'] + '_projected'] += round(match['team1_projected'] - match['team0_projected'], 2)
 
-        loser = False
-        for key in data:
-            if 'projected' not in key:
-                if not loser:
-                    loser = (key, data[key])
-                elif data[key] < loser[1]:
-                    loser = (key, data[key])
+        return data
 
-        return (loser[0], data)
+    def calculate_sports(self, football, hockey):
+        football = self.sum_sport(football)
+        hockey = self.sum_sport(hockey)
+
+        data = {'football': football,
+                'hockey': hockey}
+        return data
 
     def spin_wheel(self, username):
         # Enumerate out the options, ~10% of them are power rankings

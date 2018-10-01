@@ -48,13 +48,13 @@ def home():
         can_spin = False
 
     chopping_block = the_wheel.chopping_block()
-    chopping_block['the_block'] = sorted(chopping_block['the_block'].items(), key=lambda x: x[1])
+    chopping_block['the_block'] = sorted(chopping_block['the_block'].items(), key=lambda x: x[1]['overall'])
 
-    projected_loser = ''
-    if chopping_block['the_block']:
-        projected_loser = min(filter(lambda x: 'projected' in x[0], chopping_block['the_block']), key=lambda x: x[1])[0].split('_')[0]
+    # projected_loser = ''
+    # if chopping_block['the_block']:
+    #     projected_loser = min(filter(lambda x: 'projected' in x[0], chopping_block['the_block']), key=lambda x: x[1])[0].split('_')[0]
 
-    return render_template("index.html", history=history, name=current_user.name, can_spin=can_spin, chopping_block=chopping_block, p_loser=projected_loser)
+    return render_template("index.html", history=history, name=current_user.name, can_spin=can_spin, chopping_block=chopping_block)  # , p_loser=projected_loser)
 
 @app.route('/wheels_will')
 @login_required
@@ -62,6 +62,11 @@ def wheels_will():
     history = the_wheel.check_spins()
     if current_user.name not in history:
         return the_wheel.spin_wheel(current_user.name)
+
+@app.route('/horrible_wheel')
+@login_required
+def horrible_wheel():
+    pass
 
 @app.route('/update')
 def update():

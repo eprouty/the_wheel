@@ -24,12 +24,12 @@
                 <h3 class="panel-title">The Chopping Block</h3>
             </div>
             <div class="panel-body">
-                <ul class="nav nav-tabs">
+                <!-- <ul class="nav nav-tabs">
                     <li class="active"><a data-toggle="tab" href="#actual">Actual</a></li>
                     <li><a data-toggle="tab" href="#projected">Projected</a></li>
-                </ul>
-                <div class="tab-content">
-                    <div id="actual" class="tab-pane fade in active">
+                </ul> -->
+                <!-- <div class="tab-content">
+                    <div id="actual" class="tab-pane fade in active"> -->
                         <div class="row">
                             <div class="col-sm-6">
                                 <table class="table table-striped">
@@ -47,10 +47,10 @@
                                             {% if 'projected' not in key %}
                                                 <tr>
                                                     <td>{{ key }}</td>
-                                                    <td>{{ value }}</td>
+                                                    <td>{{ value['football'] }}</td>
+                                                    <td>{{ value['hockey'] }}</td>
                                                     <td>0</td>
-                                                    <td>0</td>
-                                                    <td>{{ value }}</td>
+                                                    <td>{{ value['overall'] }}</td>
                                                 </tr>
                                             {% endif %}
                                         {% endfor %}
@@ -63,7 +63,7 @@
                                 </div>
                                 <h3>{{ chopping_block['next_victim'] }}</h3>
                             </div>
-                        </div>
+                        <!-- </div>
                     </div>
                     <div id="projected" class="tab-pane fade">
                         <div class="row">
@@ -100,7 +100,7 @@
                                 <h3>{{ p_loser }}</h3>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
