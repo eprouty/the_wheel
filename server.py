@@ -5,7 +5,7 @@ from flask_bootstrap import Bootstrap
 from flask_login import login_required, current_user
 from flask_mongoengine import MongoEngine
 
-from the_wheel.handlers import wheel_of_shame, login, yahoo
+from the_wheel.handlers import login, stats, wheel_of_shame, yahoo
 
 app = Flask(__name__)
 
@@ -32,6 +32,10 @@ db = MongoEngine(app)
 Bootstrap(app)
 
 the_wheel = wheel_of_shame.WheelOfShame()
+
+the_stats = stats.Stats()
+the_stats.setup_stats(app)
+
 login.setup_login(app)
 yahoo.setup_yahoo(app)
 
