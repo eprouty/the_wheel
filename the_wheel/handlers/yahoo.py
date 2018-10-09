@@ -11,9 +11,11 @@ from requests_oauthlib import OAuth2Session
 
 from the_wheel.handlers.login import User
 
-
-with open('auth.json') as cred_file:
-    credentials = json.load(cred_file)[os.environ.get('STAGE')]
+credentials = {
+    "consumer_secret": os.environ.get('CONSUMER_SECRET'),
+	"consumer_key": os.environ.get('CONSUMER_KEY'),
+	"callback": os.environ.get('CALLBACK')
+}
 
 def fantasy_request(query, user_override=None):
     baseUrl = 'https://fantasysports.yahooapis.com/fantasy/v2/'
