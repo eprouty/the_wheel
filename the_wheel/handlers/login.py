@@ -29,7 +29,7 @@ def setup_login(app):
         name = StringField('name', validators=[InputRequired(), Length(max=30)])
         password = PasswordField('password', validators=[InputRequired(), Length(min=3, max=20)])
 
-    @app.route('/register', methods=['GET', 'POST'])
+    @app.route('/register_a_new_user', methods=['GET', 'POST'])
     def register():
         form = RegForm()
         if request.method == 'POST':
