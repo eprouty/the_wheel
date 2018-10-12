@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, send_from_directory
 from flask_bootstrap import Bootstrap
 from flask_login import login_required, current_user
 from flask_mongoengine import MongoEngine
@@ -79,6 +79,10 @@ def update():
         return redirect(url_for('refresh_system_token'))
 
     return the_wheel.update_losers(user_override=system_user)
+
+@app.route('/css/<path:path>')
+def static_css(path):
+    return send_from_directory('css', path)
 
 if __name__ == "__main__":
     app.run()

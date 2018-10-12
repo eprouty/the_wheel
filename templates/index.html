@@ -108,14 +108,13 @@
     <div class="page-header">
         <h3>This weeks results:</h3>
     </div>
-    <div class="row">
-        <div class="col-md-12">
-            <br/>
-            {% for key, value in history.items() %}
-                <b>{{ key }}: </b><p>{{ value }}</p>
-            {% endfor %}
-        </div>
-    </div>
+    <ul class="list-group">
+        {% for key, value in history.items() %}
+        <li class="list-group-item"><b>{{ key }}: </b>{{ value }}</li>
+        {% endfor %}
+   </ul>
+
+   {% include 'footer.html' %}
 </div>
 {% endblock %}
 
