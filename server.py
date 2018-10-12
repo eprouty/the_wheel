@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from flask import Flask, render_template, redirect, url_for, send_from_directory
 from flask_bootstrap import Bootstrap
+from flask_caching import Cache
 from flask_login import login_required, current_user
 from flask_mongoengine import MongoEngine
 
@@ -27,6 +28,9 @@ else:
 
 
 app.config['SECRET_KEY'] = 'thisisthewheelthatalwaysshames'
+
+cache = Cache(config={'CACHE_TYPE': 'simple'})
+cache.init_app(app)
 
 db = MongoEngine(app)
 Bootstrap(app)
@@ -59,6 +63,15 @@ def home():
     #     projected_loser = min(filter(lambda x: 'projected' in x[0], chopping_block['the_block']), key=lambda x: x[1])[0].split('_')[0]
 
     return render_template("index.html", history=history, name=current_user.name, can_spin=can_spin, chopping_block=chopping_block)  # , p_loser=projected_loser)
+
+@app.route('/visitor')
+@cache.cached(timeout=500)
+def visitor():
+    history = the_wheel.check_spins()
+    chopping_block = the_wheel.chopping_block()
+    chopping_block['the_block'] = sorted(chopping_block['the_block'].items(), key=lambda x: x[1]['overall'])
+
+    return render_template("index.html", can_spin=False, history=history, chopping_block=chopping_block)
 
 @app.route('/wheels_will')
 @login_required
