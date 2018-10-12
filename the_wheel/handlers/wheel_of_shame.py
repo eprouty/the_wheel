@@ -102,6 +102,7 @@ class WheelOfShame():
                     overall.setdefault(key, 0)
                     overall[key] += loser.scores[key]
 
+        overall = {k: round(v, 2) for k, v in overall.items()}
         overall_loser = min(overall, key=overall.get)
 
         record = Losers.objects(week_end=dates['football']['week_end'], sport='overall').first()
