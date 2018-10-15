@@ -38,7 +38,7 @@ class WheelOfShame():
         # show them... need to get there eventually
         today = datetime.datetime.now().date()
         f_loser = Losers.objects(week_end__gte=today, sport='football').first()
-        h_loser = Losers.objects(week_end__gte=today, sport='hockey').first()
+        h_loser = Losers.objects(week_end__gte=today - datetime.timedelta(days=1), sport='hockey').first()
         o_loser = Losers.objects(week_end__gte=today, sport='overall').first()
         last_loser = Losers.objects(week_end__lt=today, sport='overall').order_by('-week_end').first()
 
