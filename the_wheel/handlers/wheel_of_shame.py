@@ -39,6 +39,7 @@ class WheelOfShame():
         today = datetime.datetime.now().date()
         f_loser = Losers.objects(week_end__gte=today, sport='football').first()
         h_loser = Losers.objects(week_end__gte=today - datetime.timedelta(days=1), sport='hockey').first()
+        b_loser = Losers.objects(week_end__gte=today - datetime.timedelta(days=1), sport='basketball').first()
         o_loser = Losers.objects(week_end__gte=today, sport='overall').first()
         last_loser = Losers.objects(week_end__lt=today, sport='overall').order_by('-week_end').first()
 
@@ -48,8 +49,9 @@ class WheelOfShame():
         if o_loser:
             ret['next_victim'] = o_loser.loser if o_loser.scores[o_loser.loser] != 0 else ''
             for key in o_loser.scores:
-                ret['the_block'][key] = {'football': f_loser.scores[key],
-                                         'hockey': h_loser.scores[key],
+                ret['the_block'][key] = {'football': f_loser.scores[key] if f_loser is not None else 0,
+                                         'hockey': h_loser.scores[key] if h_loser is not None else 0,
+                                         'basketball': b_loser.scores[key] if b_loser is not None else 0,
                                          'overall': o_loser.scores[key]}
             print(ret['the_block'])
 
@@ -83,13 +85,16 @@ class WheelOfShame():
         # Get the scoreboards for each sport and return a list of scores for each matchup within it
         football, f_week_start, f_week_end = yahoo.get_scoreboard(league_keys['football'], user_override)
         hockey, h_week_start, h_week_end = yahoo.get_scoreboard(league_keys['hockey'], user_override)
+        basketball, b_week_start, b_week_end = yahoo.get_scoreboard(league_keys['basketball'], user_override)
 
         dates = {'football': {'week_start': datetime.datetime.strptime(f_week_start, "%Y-%m-%d"),
                               'week_end': datetime.datetime.strptime(f_week_end, "%Y-%m-%d")},
                  'hockey': {'week_start': datetime.datetime.strptime(h_week_start, "%Y-%m-%d"),
-                            'week_end': datetime.datetime.strptime(h_week_end, "%Y-%m-%d")}}
+                            'week_end': datetime.datetime.strptime(h_week_end, "%Y-%m-%d")},
+                 'basketball': {'week_start': datetime.datetime.strptime(b_week_start, '%Y-%m-%d'),
+                                'week_end': datetime.datetime.strptime(b_week_end, '%Y-%m-%d')}}
 
-        scores = self.calculate_sports(football, hockey)
+        scores = self.calculate_sports(football, hockey, basketball)
         for key in scores:
             self.record_loser(dates[key]['week_end'], key, scores[key])
 
@@ -139,12 +144,14 @@ class WheelOfShame():
 
         return data
 
-    def calculate_sports(self, football, hockey):
+    def calculate_sports(self, football, hockey, basketball):
         football = self.sum_sport(football)
         hockey = self.sum_sport(hockey)
+        basketball = self.sum_sport(basketball)
 
         data = {'football': football,
-                'hockey': hockey}
+                'hockey': hockey,
+                'basketball': basketball}
         return data
 
     def spin_wheel(self, username):
