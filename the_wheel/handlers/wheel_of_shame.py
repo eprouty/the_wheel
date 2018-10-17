@@ -130,15 +130,15 @@ class WheelOfShame():
             loser.scores = scores
             loser.save()
 
-    def sum_sport(self, sport):
+    def sum_sport(self, sport, modifier = 1):
         data = {}
         for match in sport:
             data.setdefault(match['team0_name'], 0)
-            data[match['team0_name']] += round(match['team0_score'] - match['team1_score'], 2)
+            data[match['team0_name']] += round((match['team0_score'] - match['team1_score']) * modifier, 2)
             # data.setdefault(match['team0_name'] + '_projected', 0)
             # data[match['team0_name'] + '_projected'] += round(match['team0_projected'] - match['team1_projected'], 2)
             data.setdefault(match['team1_name'], 0)
-            data[match['team1_name']] += round(match['team1_score'] - match['team0_score'], 2)
+            data[match['team1_name']] += round((match['team1_score'] - match['team0_score']) * modifier, 2)
             # data.setdefault(match['team1_name'] + '_projected', 0)
             # data[match['team1_name'] + '_projected'] += round(match['team1_projected'] - match['team0_projected'], 2)
 
@@ -147,7 +147,7 @@ class WheelOfShame():
     def calculate_sports(self, football, hockey, basketball):
         football = self.sum_sport(football)
         hockey = self.sum_sport(hockey)
-        basketball = self.sum_sport(basketball)
+        basketball = self.sum_sport(basketball, modifier=.1)
 
         data = {'football': football,
                 'hockey': hockey,
