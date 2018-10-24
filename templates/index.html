@@ -3,18 +3,14 @@
 {% block content %}
 <div class="container">
     {% include 'navbar.html' %}
+    {% if can_spin %}
     <div class="jumbotron text-center">
-        {% if can_spin %}
         <h2>Hello {{ name }}</h2>
         <button id="the_button" type="button" onClick="spinWheel()" class="btn btn-danger">Spin the Wheel!</button>
         <br/>
         <div id="new_result"></div>
-        {% endif %}
-        {% if chopping_block['the_loser'] %}
-        <h2>Punishment</h2>
-        <h3>{{ chopping_block['the_loser'] }}</h3>
-        {% endif %}
     </div>
+    {% endif %}
     <div class="row">
         <div class="panel panel-info">
             <div class="panel-heading">
@@ -58,6 +54,13 @@
             </div>
         </div>
     </div>
+    {% if chopping_block['the_loser'] %}
+    <div class="page-header">
+        <h3>Last Weeks Punishment:</h3>
+    </div>
+    <b>{{ chopping_block['the_loser'] }}</b>
+    {% endif %}
+
     <div class="page-header">
         <h3>This weeks results:</h3>
     </div>

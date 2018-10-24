@@ -97,6 +97,10 @@ def update():
 def static_css(path):
     return send_from_directory('css', path)
 
+@app.route('/images/<path:path>')
+def static_images(path):
+    return send_from_directory('images', path)
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
