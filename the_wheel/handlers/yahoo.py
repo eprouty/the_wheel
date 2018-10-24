@@ -99,8 +99,8 @@ def setup_yahoo(app):
         r = requests.post("https://api.login.yahoo.com/oauth2/get_token",
                         auth=(credentials['consumer_key'], credentials['consumer_secret']),
                         data={'refresh_token': code,
-                                'grant_type': 'refresh_token',
-                                'redirect_uri': credentials['callback']})
+                              'grant_type': 'refresh_token',
+                              'redirect_uri': credentials['callback']})
 
         token = r.json()
         current_user.oauth_token = token['access_token']

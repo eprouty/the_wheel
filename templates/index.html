@@ -2,10 +2,7 @@
 
 {% block content %}
 <div class="container">
-    <div class="page-header text-center">
-        <h1>The Wheel of Shame</h1>
-    </div>
-
+    {% include 'navbar.html' %}
     <div class="jumbotron text-center">
         {% if can_spin %}
         <h2>Hello {{ name }}</h2>
@@ -24,83 +21,39 @@
                 <h3 class="panel-title">The Chopping Block</h3>
             </div>
             <div class="panel-body">
-                <!-- <ul class="nav nav-tabs">
-                    <li class="active"><a data-toggle="tab" href="#actual">Actual</a></li>
-                    <li><a data-toggle="tab" href="#projected">Projected</a></li>
-                </ul> -->
-                <!-- <div class="tab-content">
-                    <div id="actual" class="tab-pane fade in active"> -->
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <table class="table table-striped">
-                                    <thead>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Player</th>
+                                    <th>Football</th>
+                                    <th>Hockey</th>
+                                    <th>Basketball</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in chopping_block['the_block'] %}
+                                    {% if 'projected' not in key %}
                                         <tr>
-                                            <th>Player</th>
-                                            <th>Football</th>
-                                            <th>Hockey</th>
-                                            <th>Basketball</th>
-                                            <th>Total</th>
+                                            <td>{{ key }}</td>
+                                            <td>{{ value['football'] }}</td>
+                                            <td>{{ value['hockey'] }}</td>
+                                            <td>{{ value['basketball'] }}</td>
+                                            <td>{{ value['overall'] }}</td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for key, value in chopping_block['the_block'] %}
-                                            {% if 'projected' not in key %}
-                                                <tr>
-                                                    <td>{{ key }}</td>
-                                                    <td>{{ value['football'] }}</td>
-                                                    <td>{{ value['hockey'] }}</td>
-                                                    <td>{{ value['basketball'] }}</td>
-                                                    <td>{{ value['overall'] }}</td>
-                                                </tr>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-sm-6 text-center">
-                                <div class="panel-heading">
-                                    <h3>On the Block:</h3>
-                                </div>
-                                <h3>{{ chopping_block['next_victim'] }}</h3>
-                            </div>
-                        <!-- </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                    <div id="projected" class="tab-pane fade">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Player</th>
-                                            <th>Football</th>
-                                            <th>Hockey</th>
-                                            <th>Basketball</th>
-                                            <th>Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for key, value in chopping_block['the_block'] %}
-                                            {% if 'projected' in key %}
-                                                <tr>
-                                                    <td>{{ key.split('_')[0] }}</td>
-                                                    <td>{{ value }}</td>
-                                                    <td>0</td>
-                                                    <td>0</td>
-                                                    <td>{{ value }}</td>
-                                                </tr>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-sm-6 text-center">
-                                <div class="panel-heading">
-                                    <h3>On the Block:</h3>
-                                </div>
-                                <h3>{{ p_loser }}</h3>
-                            </div>
+                    <div class="col-sm-6 text-center">
+                        <div class="panel-heading">
+                            <h3>On the Block:</h3>
                         </div>
-                    </div> -->
+                        <h3>{{ chopping_block['next_victim'] }}</h3>
+                    </div>
                 </div>
             </div>
         </div>
