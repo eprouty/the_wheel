@@ -69,6 +69,15 @@ def visitor():
 
     return render_template("index.html", can_spin=False, history=history, chopping_block=chopping_block, page='visitor')
 
+@app.route('/history')
+@cache.cached(timeout=500)
+def history():
+    weeks = the_wheel.get_weeks()
+    last_week = the_wheel.get_history('last')
+    last_week['the_block'] = sorted(last_week['the_block'].items(), key=lambda x: x[1]['overall'])
+
+    return render_template('history.html', weeks=weeks, results=last_week, page='history')
+
 @app.route('/wheels_will')
 @login_required
 def wheels_will():

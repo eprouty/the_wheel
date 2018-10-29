@@ -32,16 +32,15 @@ class WheelOfShame():
         with open('the_wheel/data/shame.json') as f:
             self.data = json.load(f)
 
-    def chopping_block(self):
-        # TODO: This needs to be updated to actually support showing hockey and basketball results
-        # They are going to be stored in the database now... but haven't done any work to actually
-        # show them... need to get there eventually
-        today = datetime.datetime.now().date()
-        f_loser = Losers.objects(week_end__gte=today, sport='football').first()
-        h_loser = Losers.objects(week_end__gte=today - datetime.timedelta(days=1), sport='hockey').first()
-        b_loser = Losers.objects(week_end__gte=today - datetime.timedelta(days=1), sport='basketball').first()
-        o_loser = Losers.objects(week_end__gte=today, sport='overall').first()
-        last_loser = Losers.objects(week_end__lt=today, sport='overall').order_by('-week_end').first()
+    @staticmethod
+    def chopping_block():
+        date = datetime.datetime.now().date()
+
+        f_loser = Losers.objects(week_end__gte=date, sport='football').first()
+        h_loser = Losers.objects(week_end__gte=date - datetime.timedelta(days=1), sport='hockey').first()
+        b_loser = Losers.objects(week_end__gte=date - datetime.timedelta(days=1), sport='basketball').first()
+        o_loser = Losers.objects(week_end__gte=date, sport='overall').first()
+        last_loser = Losers.objects(week_end__lt=date, sport='overall').order_by('-week_end').first()
 
         ret = {'the_loser': '',
                'the_block': {},
@@ -67,7 +66,50 @@ class WheelOfShame():
 
         return ret
 
-    def check_spins(self):
+    @staticmethod
+    def get_history(week):
+        # Week can either be 'last' or a DateTime.date() object
+        if week == 'last':
+            end = datetime.datetime.now().date()
+            start = end  - datetime.timedelta(days=7)
+            alt_start = start - datetime.timedelta(days=1)
+        else:
+            end = week
+            start = week - datetime.timedelta(days=1)
+            alt_start = start - datetime.timedelta(days=1)
+
+        # Get all the loser objects within that weeks timeframe
+        f_loser = Losers.objects(Q(week_end__gte=start) & Q(week_end__lt=end), sport='football').first()
+        h_loser = Losers.objects(Q(week_end__gte=alt_start) & Q(week_end__lt=end), sport='hockey').first()
+        b_loser = Losers.objects(Q(week_end__gte=alt_start) & Q(week_end__lt=end), sport='basketball').first()
+        o_loser = Losers.objects(Q(week_end__gte=start) & Q(week_end__lt=end), sport='overall').first()
+
+        ret = {'the_loser': o_loser.loser,
+               'the_block': {},
+               'the_punishment': o_loser.punishment}
+        for key in o_loser.scores:
+            ret['the_block'][key] = {'football': f_loser.scores[key] if f_loser is not None else 0,
+                                     'hockey': h_loser.scores[key] if h_loser is not None else 0,
+                                     'basketball': b_loser.scores[key] if b_loser is not None else 0,
+                                     'overall': o_loser.scores[key]}
+
+        return ret
+
+    @staticmethod
+    def get_weeks():
+        # Find and return a list of previous weeks that can be looked at from a historical perspective.
+        weeks = []
+        o_loser = Losers.objects(sport='overall')
+
+        for loser in o_loser:
+            if loser.week_end.date() < datetime.datetime.now().date():
+                # this week has already ended and is valid for history
+                weeks.append(loser.week_end)
+
+        return weeks
+
+    @staticmethod
+    def check_spins():
         output = {}
         # Get the spins for this week and make sure that user hasn't spun already this week...
         today = datetime.datetime.now().date()
@@ -81,7 +123,8 @@ class WheelOfShame():
 
         return output
 
-    def update_losers(self, user_override=None):
+    @staticmethod
+    def update_losers(user_override=None):
         # Get the scoreboards for each sport and return a list of scores for each matchup within it
         football, f_week_start, f_week_end = yahoo.get_scoreboard(league_keys['football'], user_override)
         hockey, h_week_start, h_week_end = yahoo.get_scoreboard(league_keys['hockey'], user_override)
@@ -120,7 +163,8 @@ class WheelOfShame():
 
         return "{} \n {}".format(overall_loser, overall)
 
-    def record_loser(self, week_end, sport, scores):
+    @staticmethod
+    def record_loser(week_end, sport, scores):
         loser = Losers.objects(week_end=week_end, sport=sport).first()
         if not loser:
             # We've got a new week! Create the new object and go finalize last weeks
@@ -130,7 +174,8 @@ class WheelOfShame():
             loser.scores = scores
             loser.save()
 
-    def sum_sport(self, sport, modifier = 1):
+    @staticmethod
+    def sum_sport(sport, modifier=1):
         data = {}
         for match in sport:
             data.setdefault(match['team0_name'], 0)
@@ -162,7 +207,6 @@ class WheelOfShame():
         # Pick a random number
         wheels_will = random.randint(0, total_shames - 1)
         if wheels_will >= len(shames):
-            # TODO: We need to check if there is another power ranker this week
             shame_name = "Power Rankings!"
             shame_info = "Your turn to do the power rankings for the week!"
         else:
@@ -189,9 +233,10 @@ class WheelOfShame():
 
         # Store the result
         self.store_spin(shame_name, shame_info, username)
-        return("{} {}".format(shame_name, shame_info))
+        return "{} {}".format(shame_name, shame_info)
 
-    def store_spin(self, shame_name, shame_info, username):
+    @staticmethod
+    def store_spin(shame_name, shame_info, username):
         spin = Spins(date=datetime.datetime.now(),
                      shame=shame_name,
                      info=shame_info,
