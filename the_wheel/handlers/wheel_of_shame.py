@@ -123,8 +123,7 @@ class WheelOfShame():
 
         return output
 
-    @staticmethod
-    def update_losers(user_override=None):
+    def update_losers(self, user_override=None):
         # Get the scoreboards for each sport and return a list of scores for each matchup within it
         football, f_week_start, f_week_end = yahoo.get_scoreboard(league_keys['football'], user_override)
         hockey, h_week_start, h_week_end = yahoo.get_scoreboard(league_keys['hockey'], user_override)
