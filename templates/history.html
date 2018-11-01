@@ -4,17 +4,16 @@
 <div class="container">
     {% include 'navbar.html' %}
 
-    <div class="text-center" style="padding-bottom: 25px">
-        <div class="page-header">
-            <h3>The Punishment:</h3>
-        </div>
-        <b>{{ results['the_punishment'] }}</b>
-    </div>
-
-    <div class="row">
+    <div class="row" style="margin-top: 25px;">
         <div class="panel panel-info">
             <div class="panel-heading">
-                <h3 class="panel-title">The Chopping Block</h3>
+                <h3 class="panel-title">The Chopping Block
+                    <select id="select_history" onchange="selectHistory()" style="margin-left: 25px;">
+                        {% for week in weeks %}
+                        <option value="{{ week }}">{{ week }}</option>
+                        {% endfor %}
+                    </select>
+                </h3>
             </div>
             <div class="panel-body">
                 <div class="row">
@@ -29,7 +28,7 @@
                                     <th>Total</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id='results_table'>
                                 {% for key, value in results['the_block'] %}
                                     {% if 'projected' not in key %}
                                         <tr>
@@ -48,11 +47,60 @@
                         <div class="panel-heading">
                             <h3>The Loser:</h3>
                         </div>
-                        <h3>{{ results['the_loser'] }}</h3>
+                        <h3 id='loser_name'>{{ results['the_loser'] }}</h3>
+                        <b id='loser_punishment'>{{ results['the_punishment'] }}</b>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script>
+    function selectHistory() {
+        var week = document.getElementById('select_history').value;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                // Deal with results of the history request
+                console.log(this.responseText);
+                results = JSON.parse(this.responseText);
+                // Need to rebuild the results table here... could take some work
+                document.getElementById('loser_punishment').innerHTML = results['the_punishment'];
+                document.getElementById('loser_name').innerHTML = results['the_loser'];
+
+                var tbody = document.createElement('tbody');
+                tbody.setAttribute('id', 'results_table');
+                for (var i = 0; i < results['the_block'].length; ++i){
+                    var [name, result] = results['the_block'][i];
+                    if (!name.includes('projected')){
+                        var row = document.createElement('tr');
+
+                        newCell(row, name);
+                        newCell(row, result['football']);
+                        newCell(row, result['hockey']);
+                        newCell(row, result['basketball']);
+                        newCell(row, result['overall']);
+
+                        tbody.appendChild(row);
+                    }
+                }
+
+                document.getElementById('results_table').replaceWith(tbody);
+            }
+        };
+        xhttp.open("GET", "results/" + week, true);
+        xhttp.send();
+    }
+
+    function newCell(row, text){
+        var cell = document.createElement("td");
+        var cellText = document.createTextNode(text);
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+    }
+</script>
 {% endblock %}

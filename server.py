@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 from flask import Flask, render_template, redirect, url_for, send_from_directory
@@ -50,24 +51,24 @@ def home():
     if datetime.now() > current_user.token_expiry:
         return redirect(url_for('refresh_token'))
 
-    history = the_wheel.check_spins()
+    hist = the_wheel.check_spins()
     can_spin = True
-    if current_user.name in history:
+    if current_user.name in hist:
         can_spin = False
 
     chopping_block = the_wheel.chopping_block()
     chopping_block['the_block'] = sorted(chopping_block['the_block'].items(), key=lambda x: x[1]['overall'])
 
-    return render_template("index.html", history=history, name=current_user.name, can_spin=can_spin, chopping_block=chopping_block, page='home')
+    return render_template("index.html", history=hist, name=current_user.name, can_spin=can_spin, chopping_block=chopping_block, page='home')
 
 @app.route('/visitor')
 @cache.cached(timeout=500)
 def visitor():
-    history = the_wheel.check_spins()
+    hist = the_wheel.check_spins()
     chopping_block = the_wheel.chopping_block()
     chopping_block['the_block'] = sorted(chopping_block['the_block'].items(), key=lambda x: x[1]['overall'])
 
-    return render_template("index.html", can_spin=False, history=history, chopping_block=chopping_block, page='visitor')
+    return render_template("index.html", can_spin=False, history=hist, chopping_block=chopping_block, page='visitor')
 
 @app.route('/history')
 @cache.cached(timeout=500)
@@ -78,11 +79,18 @@ def history():
 
     return render_template('history.html', weeks=weeks, results=last_week, page='history')
 
+@app.route('/results/<week>')
+def results(week):
+    week = the_wheel.get_history(week)
+    week['the_block'] = sorted(week['the_block'].items(), key=lambda x: x[1]['overall'])
+
+    return json.dumps(week)
+
 @app.route('/wheels_will')
 @login_required
 def wheels_will():
-    history = the_wheel.check_spins()
-    if current_user.name not in history:
+    hist = the_wheel.check_spins()
+    if current_user.name not in hist:
         return the_wheel.spin_wheel(current_user.name)
 
 @app.route('/horrible_wheel')
@@ -92,7 +100,7 @@ def horrible_wheel():
 
 @app.route('/update')
 def update():
-    system_user = login.User.objects(name='system').first()
+    system_user = login.User.objects(name='system').first()  # pylint: disable=E1101
     if datetime.now() > system_user.token_expiry:
         return redirect(url_for('refresh_system_token'))
 

@@ -74,15 +74,16 @@ class WheelOfShame():
             start = end  - datetime.timedelta(days=7)
             alt_start = start - datetime.timedelta(days=1)
         else:
-            end = week
-            start = week - datetime.timedelta(days=1)
+            end = datetime.datetime.strptime(week, '%Y-%m-%d')
+            start = end - datetime.timedelta(days=1)
             alt_start = start - datetime.timedelta(days=1)
 
         # Get all the loser objects within that weeks timeframe
-        f_loser = Losers.objects(Q(week_end__gte=start) & Q(week_end__lt=end), sport='football').first()
-        h_loser = Losers.objects(Q(week_end__gte=alt_start) & Q(week_end__lt=end), sport='hockey').first()
-        b_loser = Losers.objects(Q(week_end__gte=alt_start) & Q(week_end__lt=end), sport='basketball').first()
-        o_loser = Losers.objects(Q(week_end__gte=start) & Q(week_end__lt=end), sport='overall').first()
+        print("start: {}\nend: {}\nalt_start: {}".format(start, end, alt_start))
+        f_loser = Losers.objects(Q(week_end__gt=start) & Q(week_end__lte=end), sport='football').first()
+        h_loser = Losers.objects(Q(week_end__gt=alt_start) & Q(week_end__lte=end), sport='hockey').first()
+        b_loser = Losers.objects(Q(week_end__gt=alt_start) & Q(week_end__lte=end), sport='basketball').first()
+        o_loser = Losers.objects(Q(week_end__gt=start) & Q(week_end__lte=end), sport='overall').first()
 
         ret = {'the_loser': o_loser.loser,
                'the_block': {},
@@ -104,8 +105,9 @@ class WheelOfShame():
         for loser in o_loser:
             if loser.week_end.date() < datetime.datetime.now().date():
                 # this week has already ended and is valid for history
-                weeks.append(loser.week_end)
+                weeks.append(loser.week_end.date())
 
+        weeks.sort(reverse=True)
         return weeks
 
     @staticmethod
