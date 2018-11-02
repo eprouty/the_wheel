@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from datetime import datetime
 from flask import Flask, render_template, redirect, url_for, send_from_directory
@@ -8,6 +9,8 @@ from flask_login import login_required, current_user
 from flask_mongoengine import MongoEngine
 
 from the_wheel.handlers import login, stats, wheel_of_shame, yahoo
+
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 app = Flask(__name__)
 

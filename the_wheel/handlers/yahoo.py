@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import requests
 import requests_cache
@@ -33,6 +34,7 @@ def fantasy_request(query, user_override=None):
 def get_scoreboard(league, user_override):
     output = []
     r = fantasy_request('league/{}/scoreboard'.format(league), user_override=user_override)
+    logging.info("%s Scoreboard: %s", league, r)
     matchups = r['fantasy_content']['league'][1]['scoreboard']['0']['matchups']
     for key in matchups:
         if key != 'count':
@@ -107,7 +109,7 @@ def setup_yahoo(app):
         current_user.refresh_token = token['refresh_token']
         current_user.token_expiry = datetime.now() + timedelta(seconds=token['expires_in'])
         current_user.save()
-        print("{} has refreshed their token".format(current_user.name))
+
         return redirect(url_for('home'))
 
     @app.route('/refresh_system_token')

@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import random
 
 from mongoengine.queryset.visitor import Q
@@ -52,7 +53,6 @@ class WheelOfShame():
                                          'hockey': h_loser.scores[key] if h_loser is not None else 0,
                                          'basketball': b_loser.scores[key] if b_loser is not None else 0,
                                          'overall': o_loser.scores[key]}
-            print(ret['the_block'])
 
         if last_loser and last_loser.punishment == '':
             start = last_loser.week_end - datetime.timedelta(days=6)
@@ -79,7 +79,6 @@ class WheelOfShame():
             alt_start = start - datetime.timedelta(days=1)
 
         # Get all the loser objects within that weeks timeframe
-        print("start: {}\nend: {}\nalt_start: {}".format(start, end, alt_start))
         f_loser = Losers.objects(Q(week_end__gt=start) & Q(week_end__lte=end), sport='football').first()
         h_loser = Losers.objects(Q(week_end__gt=alt_start) & Q(week_end__lte=end), sport='hockey').first()
         b_loser = Losers.objects(Q(week_end__gt=alt_start) & Q(week_end__lte=end), sport='basketball').first()
@@ -162,6 +161,10 @@ class WheelOfShame():
             record.scores = overall
             record.save()
 
+        logging.info("""Scores updated:
+        Sports: %s
+        Overall: %s
+        """, scores, overall)
         return "{} \n {}".format(overall_loser, overall)
 
     @staticmethod

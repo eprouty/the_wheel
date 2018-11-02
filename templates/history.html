@@ -66,7 +66,6 @@
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 // Deal with results of the history request
-                console.log(this.responseText);
                 results = JSON.parse(this.responseText);
                 // Need to rebuild the results table here... could take some work
                 document.getElementById('loser_punishment').innerHTML = results['the_punishment'];
