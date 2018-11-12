@@ -33,6 +33,18 @@ class WheelOfShame():
         with open('the_wheel/data/shame.json') as f:
             self.data = json.load(f)
 
+        # Enumerate out the options,
+        self.shames = list(self.data['wheel_of_shame'])
+
+        # need to adjust shitter trophy so that it's more frequent
+        i = 1
+        while i <= int(len(self.shames) * .1):
+            self.shames.append('Shitter Trophy!')
+            i += 1
+
+        # Make it so that ~10% of them are power rankings
+        self.total_shames = len(self.shames) + int(len(self.shames) * .1) + 1
+
     @staticmethod
     def chopping_block():
         date = datetime.datetime.now().date()
@@ -204,18 +216,14 @@ class WheelOfShame():
         return data
 
     def spin_wheel(self, username):
-        # Enumerate out the options, ~10% of them are power rankings
-        shames = list(self.data['wheel_of_shame'])
-        total_shames = len(shames) + int(len(shames) * .1) + 1
-
         # Pick a random number
-        wheels_will = random.randint(0, total_shames - 1)
-        if wheels_will >= len(shames):
+        wheels_will = random.randint(0, self.total_shames - 1)
+        if wheels_will >= len(self.shames):
             shame_name = "Power Rankings!"
             shame_info = "Your turn to do the power rankings for the week!"
         else:
-            shame_name = shames[wheels_will]
-            shame_info = self.data['wheel_of_shame'][shames[wheels_will]]
+            shame_name = self.shames[wheels_will]
+            shame_info = self.data['wheel_of_shame'][self.shames[wheels_will]]
             # Check conditions to see if th  is is a valid pick, if not pick a new number
             if 'start_date' in shame_info:
                 # need to check that this one is active
