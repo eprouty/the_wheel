@@ -48,30 +48,20 @@ login.setup_login(app)
 yahoo.setup_yahoo(app)
 
 @app.route("/")
-@login_required
 def home():
-    # Revalidate the token if it's expired
-    if datetime.now() > current_user.token_expiry:
-        return redirect(url_for('refresh_token'))
-
     hist = the_wheel.check_spins()
-    can_spin = True
-    if current_user.name in hist:
-        can_spin = False
-
     chopping_block = the_wheel.chopping_block()
     chopping_block['the_block'] = sorted(chopping_block['the_block'].items(), key=lambda x: x[1]['overall'])
+
+    can_spin = False
+    if current_user.is_authenticated:
+        # Revalidate the token if it's expired
+        if datetime.now() > current_user.token_expiry:
+            return redirect(url_for('refresh_token'))
+
+        can_spin = current_user.name not in hist
 
     return render_template("index.html", history=hist, name=current_user.name, can_spin=can_spin, chopping_block=chopping_block, page='home')
-
-@app.route('/visitor')
-@cache.cached(timeout=500)
-def visitor():
-    hist = the_wheel.check_spins()
-    chopping_block = the_wheel.chopping_block()
-    chopping_block['the_block'] = sorted(chopping_block['the_block'].items(), key=lambda x: x[1]['overall'])
-
-    return render_template("index.html", can_spin=False, history=hist, chopping_block=chopping_block, page='visitor')
 
 @app.route('/history')
 @cache.cached(timeout=500)
