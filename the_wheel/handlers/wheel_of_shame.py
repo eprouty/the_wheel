@@ -96,7 +96,8 @@ class WheelOfShame():
         b_loser = Losers.objects(Q(week_end__gt=alt_start) & Q(week_end__lte=end), sport='basketball').first()
         o_loser = Losers.objects(Q(week_end__gt=start) & Q(week_end__lte=end), sport='overall').first()
 
-        ret = {'the_loser': o_loser.loser,
+        ret = {'id': o_loser.id,
+               'the_loser': o_loser.loser,
                'the_block': {},
                'the_punishment': o_loser.punishment}
         for key in o_loser.scores:

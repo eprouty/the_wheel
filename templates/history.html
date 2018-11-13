@@ -54,6 +54,23 @@
             </div>
         </div>
     </div>
+    <div id='punishment'>
+        {% if 'description' in punishment %}
+        <div class="row">
+            <p>{{ punishment['description'] }}</p>
+        </div>
+        {% endif %}
+        {% if 'video' in punishment %}
+        <div class="row">
+            <iframe width="560" height="315" src="{{ punishment['video'] }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        {% endif %}
+        {% if 'image' in punishment %}
+        <div class="row">
+            <img src="{{ punishment['image'] }}">
+        </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
 
@@ -66,7 +83,10 @@
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 // Deal with results of the history request
-                results = JSON.parse(this.responseText);
+                r = JSON.parse(this.responseText);
+                results = r[0];
+                punishment = r[1];
+
                 // Need to rebuild the results table here... could take some work
                 document.getElementById('loser_punishment').innerHTML = results['the_punishment'];
                 document.getElementById('loser_name').innerHTML = results['the_loser'];
@@ -89,6 +109,35 @@
                 }
 
                 document.getElementById('results_table').replaceWith(tbody);
+
+                // Rebuild the punishment div
+                var pdiv = document.createElement('div');
+                pdiv.setAttribute('id', 'punishment');
+
+                if ('description' in punishment){
+                    var ddiv = document.createElement('div')
+                    ddiv.setAttribute('class', 'row')
+                    ddiv.innerHTML = punishment['description'];
+                    pdiv.appendChild(ddiv);
+                }
+
+                if ('image' in punishment){
+                    var idiv = document.createElement('div');
+                    idiv.setAttribute('class', 'row');
+                    var img = document.createElement('img');
+                    img.setAttribute('src', punishment['image'])
+                    idiv.appendChild(img);
+                    pdiv.appendChild(idiv);
+                }
+
+                if ('video' in punishment){
+                    var vdiv = document.createElement('div');
+                    vdiv.setAttribute('class', 'row');
+                    vdiv.innerHTML = '<iframe width="560" height="315" src="' + punishment['video'] + '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+                    pdiv.appendChild(vdiv);
+                }
+
+                document.getElementById('punishment').replaceWith(pdiv);
             }
         };
         xhttp.open("GET", "results/" + week, true);

@@ -8,7 +8,7 @@ from flask_caching import Cache
 from flask_login import login_required, current_user
 from flask_mongoengine import MongoEngine
 
-from the_wheel.handlers import login, stats, wheel_of_shame, yahoo
+from the_wheel.handlers import login, stats, wheel_of_shame, yahoo, punishments
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
@@ -70,14 +70,18 @@ def history():
     last_week = the_wheel.get_history('last')
     last_week['the_block'] = sorted(last_week['the_block'].items(), key=lambda x: x[1]['overall'])
 
-    return render_template('history.html', weeks=weeks, results=last_week, page='history')
+    punishment = punishments.get_punishment(last_week['id'])
+
+    return render_template('history.html', weeks=weeks, results=last_week, page='history', punishment=punishment)
 
 @app.route('/results/<week>')
 def results(week):
     week = the_wheel.get_history(week)
     week['the_block'] = sorted(week['the_block'].items(), key=lambda x: x[1]['overall'])
 
-    return json.dumps(week)
+    punishment = punishments.get_punishment(week['id'])
+    week.pop('id', None)
+    return "[{}, {}]".format(json.dumps(week), punishment.to_json())
 
 @app.route('/wheels_will')
 @login_required
