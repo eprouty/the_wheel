@@ -54,6 +54,7 @@
             </div>
         </div>
     </div>
+    {% if punishment %}
     <div id='punishment'>
         {% if 'description' in punishment %}
         <div class="row">
@@ -71,6 +72,7 @@
         </div>
         {% endif %}
     </div>
+    {% endif %}
 </div>
 {% endblock %}
 
