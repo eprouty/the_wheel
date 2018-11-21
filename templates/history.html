@@ -54,25 +54,25 @@
             </div>
         </div>
     </div>
-    {% if punishment %}
     <div id='punishment'>
-        {% if 'description' in punishment %}
-        <div class="row">
-            <p>{{ punishment['description'] }}</p>
-        </div>
-        {% endif %}
-        {% if 'video' in punishment %}
-        <div class="row">
-            <iframe width="560" height="315" src="{{ punishment['video'] }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-        {% endif %}
-        {% if 'image' in punishment %}
-        <div class="row">
-            <img src="{{ punishment['image'] }}">
-        </div>
+        {% if punishment %}
+            {% if 'description' in punishment %}
+            <div class="row">
+                <p>{{ punishment['description'] }}</p>
+            </div>
+            {% endif %}
+            {% if 'video' in punishment %}
+            <div class="row">
+                <iframe width="560" height="315" src="{{ punishment['video'] }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            {% endif %}
+            {% if 'image' in punishment %}
+            <div class="row">
+                <img src="{{ punishment['image'] }}">
+            </div>
+            {% endif %}
         {% endif %}
     </div>
-    {% endif %}
 </div>
 {% endblock %}
 
