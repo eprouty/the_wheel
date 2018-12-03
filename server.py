@@ -54,14 +54,16 @@ def home():
     chopping_block['the_block'] = sorted(chopping_block['the_block'].items(), key=lambda x: x[1]['overall'])
 
     can_spin = False
+    name = ''
     if current_user.is_authenticated:
         # Revalidate the token if it's expired
         if datetime.now() > current_user.token_expiry:
             return redirect(url_for('refresh_token'))
 
         can_spin = current_user.name not in hist
+        name = current_user.name
 
-    return render_template("index.html", history=hist, name=current_user.name, can_spin=can_spin, chopping_block=chopping_block, page='home')
+    return render_template("index.html", history=hist, name=name, can_spin=can_spin, chopping_block=chopping_block, page='home')
 
 @app.route('/history')
 @cache.cached(timeout=500)
