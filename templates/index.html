@@ -6,12 +6,8 @@
     {% if can_spin %}
     <div class="jumbotron text-center">
         <h2>Hello {{ name }}</h2>
-        {% if name == 'Tyler' %}
-        <p>Sorry Tyler, you didn't spin the wheel last week! You need to send a 150+ word essay on why the Giants are bad to the chat before you're allowed to spin the wheel.  Remember... if you lose and haven't spun the wheel then you have to spin the horrible wheel!</p>
-        {% else %}
         <button id="the_button" type="button" onClick="spinWheel()" class="btn btn-danger">Spin the Wheel!</button>
         <br/>
-        {% endif %}
         <div id="new_result"></div>
     </div>
     {% endif %}
