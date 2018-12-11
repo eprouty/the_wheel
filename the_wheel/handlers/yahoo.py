@@ -34,6 +34,11 @@ def fantasy_request(query, user_override=None):
 def get_scoreboard(league, user_override):
     output = []
     r = fantasy_request('league/{}/scoreboard'.format(league), user_override=user_override)
+
+    # check to see if we're in the playoffs and this should be ignored
+    if r['fantasy_content']['league'][1]['scoreboard']['0']['matchups']['0']['matchup']['is_playoffs'] == '1':
+        return (None, None, None)
+
     logging.info("%s Scoreboard: %s", league, r)
     matchups = r['fantasy_content']['league'][1]['scoreboard']['0']['matchups']
     for key in matchups:

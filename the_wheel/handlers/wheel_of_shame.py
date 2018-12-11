@@ -48,10 +48,14 @@ class WheelOfShame():
     @staticmethod
     def chopping_block():
         date = datetime.datetime.now().date()
+        football_offset = datetime.timedelta(days=0)
 
         f_loser = Losers.objects(week_end__gte=date, sport='football').first()
-        h_loser = Losers.objects(week_end__gte=date - datetime.timedelta(days=1), sport='hockey').first()
-        b_loser = Losers.objects(week_end__gte=date - datetime.timedelta(days=1), sport='basketball').first()
+        if f_loser:
+            football_offset = datetime.timedelta(days=1)
+
+        h_loser = Losers.objects(week_end__gte=date - football_offset, sport='hockey').first()
+        b_loser = Losers.objects(week_end__gte=date - football_offset, sport='basketball').first()
         o_loser = Losers.objects(week_end__gte=date, sport='overall').first()
         last_loser = Losers.objects(week_end__lt=date, sport='overall').order_by('-week_end').first()
 
@@ -143,19 +147,35 @@ class WheelOfShame():
         hockey, h_week_start, h_week_end = yahoo.get_scoreboard(league_keys['hockey'], user_override)
         basketball, b_week_start, b_week_end = yahoo.get_scoreboard(league_keys['basketball'], user_override)
 
-        dates = {'football': {'week_start': datetime.datetime.strptime(f_week_start, "%Y-%m-%d"),
-                              'week_end': datetime.datetime.strptime(f_week_end, "%Y-%m-%d")},
-                 'hockey': {'week_start': datetime.datetime.strptime(h_week_start, "%Y-%m-%d"),
-                            'week_end': datetime.datetime.strptime(h_week_end, "%Y-%m-%d")},
-                 'basketball': {'week_start': datetime.datetime.strptime(b_week_start, '%Y-%m-%d'),
-                                'week_end': datetime.datetime.strptime(b_week_end, '%Y-%m-%d')}}
+        dates = {}
+        week_start = None
+        week_end = None
+        if hockey:
+            dates['hockey'] = {'week_start': datetime.datetime.strptime(h_week_start, "%Y-%m-%d"),
+                               'week_end': datetime.datetime.strptime(h_week_end, "%Y-%m-%d")}
+
+            week_start = dates['hockey']['week_start']
+            week_end = dates['hockey']['week_end']
+        if basketball:
+            dates['basketball'] = {'week_start': datetime.datetime.strptime(b_week_start, '%Y-%m-%d'),
+                                   'week_end': datetime.datetime.strptime(b_week_end, '%Y-%m-%d')}
+
+            week_start = dates['basketball']['week_start']
+            week_end = dates['basketball']['week_end']
+        if football:
+            dates['football'] = {'week_start': datetime.datetime.strptime(f_week_start, "%Y-%m-%d"),
+                                 'week_end': datetime.datetime.strptime(f_week_end, "%Y-%m-%d")}
+
+            week_start = dates['football']['week_start']
+            week_end = dates['football']['week_end']
 
         scores = self.calculate_sports(football, hockey, basketball)
         for key in scores:
-            self.record_loser(dates[key]['week_end'], key, scores[key])
+            if scores[key] != {}:
+                self.record_loser(dates[key]['week_end'], key, scores[key])
 
         # Now figure out the overall winner taking into consideration the way that weeks end for different sports.
-        the_week = Losers.objects(Q(week_end__gt=dates['football']['week_start']) & Q(week_end__lte=dates['football']['week_end']))
+        the_week = Losers.objects(Q(week_end__gt=week_start) & Q(week_end__lte=week_end))
         overall = {}
         for loser in the_week:
             if loser.sport != 'overall':
@@ -166,9 +186,9 @@ class WheelOfShame():
         overall = {k: round(v, 2) for k, v in overall.items()}
         overall_loser = min(overall, key=overall.get)
 
-        record = Losers.objects(week_end=dates['football']['week_end'], sport='overall').first()
+        record = Losers.objects(week_end=week_end, sport='overall').first()
         if not record:
-            Losers(sport='overall', week_end=dates['football']['week_end'], loser=overall_loser, scores=overall).save()
+            Losers(sport='overall', week_end=week_end, loser=overall_loser, scores=overall).save()
         else:
             record.loser = overall_loser
             record.scores = overall
