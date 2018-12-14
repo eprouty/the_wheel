@@ -65,9 +65,9 @@ class WheelOfShame():
         if o_loser:
             ret['next_victim'] = o_loser.loser if o_loser.scores[o_loser.loser] != 0 else ''
             for key in o_loser.scores:
-                ret['the_block'][key] = {'football': f_loser.scores[key] if f_loser is not None else 0,
-                                         'hockey': h_loser.scores[key] if h_loser is not None else 0,
-                                         'basketball': b_loser.scores[key] if b_loser is not None else 0,
+                ret['the_block'][key] = {'football': f_loser.scores[key] if f_loser is not None else None,
+                                         'hockey': h_loser.scores[key] if h_loser is not None else None,
+                                         'basketball': b_loser.scores[key] if b_loser is not None else None,
                                          'overall': o_loser.scores[key]}
 
         if last_loser and last_loser.punishment == '':
@@ -171,7 +171,7 @@ class WheelOfShame():
 
         scores = self.calculate_sports(football, hockey, basketball)
         for key in scores:
-            if scores[key] != {}:
+            if scores[key]:
                 self.record_loser(dates[key]['week_end'], key, scores[key])
 
         # Now figure out the overall winner taking into consideration the way that weeks end for different sports.
@@ -227,9 +227,12 @@ class WheelOfShame():
         return data
 
     def calculate_sports(self, football, hockey, basketball):
-        football = self.sum_sport(football)
-        hockey = self.sum_sport(hockey)
-        basketball = self.sum_sport(basketball, modifier=.1)
+        if football:
+            football = self.sum_sport(football)
+        if hockey:
+            hockey = self.sum_sport(hockey)
+        if basketball:
+            basketball = self.sum_sport(basketball, modifier=.1)
 
         data = {'football': football,
                 'hockey': hockey,
