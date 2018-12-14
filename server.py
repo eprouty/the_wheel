@@ -82,8 +82,13 @@ def results(week):
     week['the_block'] = sorted(week['the_block'].items(), key=lambda x: x[1]['overall'])
 
     punishment = punishments.get_punishment(week['id'])
+    if punishment:
+        punishment = punishment.to_json()
+    else:
+        punishment = ""
+
     week.pop('id', None)
-    return "[{}, {}]".format(json.dumps(week), punishment.to_json())
+    return "[{}, {}]".format(json.dumps(week), punishment)
 
 @app.route('/wheels_will')
 @login_required
