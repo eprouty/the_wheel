@@ -71,6 +71,11 @@
                 <img src="{{ punishment['image'] }}">
             </div>
             {% endif %}
+            {% if 'iframe' in punishment %}
+            <div class="row">
+                <iframe src="{{ punishment['iframe'] }}"></iframe>
+            </div>
+            {% endif %}
         {% endif %}
     </div>
 </div>

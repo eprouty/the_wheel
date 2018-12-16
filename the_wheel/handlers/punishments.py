@@ -5,6 +5,7 @@ class Punishments(Document):
     loser = ObjectIdField()
     video = URLField()
     image = URLField()
+    iframe = URLField()
     description = StringField()
 
 def get_punishment(loser_id):
