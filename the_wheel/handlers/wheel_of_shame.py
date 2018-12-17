@@ -131,8 +131,7 @@ class WheelOfShame():
         output = {}
         # Get the spins for this week and make sure that user hasn't spun already this week...
         today = datetime.datetime.now().date()
-        adj = today.weekday() if today.weekday() != 0 else 6
-        start = today - datetime.timedelta(days=adj)
+        start = today - datetime.timedelta(days=today.weekday())
         end = start + datetime.timedelta(days=6)
 
         this_week = Spins.objects(Q(date__gte=start) & Q(date__lte=end))
